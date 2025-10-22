@@ -24,6 +24,8 @@ INSTALLED_APPS = [
 
     'users',
     'habits',
+
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -136,4 +138,4 @@ CACHES = {
 #     },
 # }
 
-
+AUTH_USER_MODEL = 'users.User'
