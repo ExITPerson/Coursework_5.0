@@ -67,7 +67,7 @@ class Habit(models.Model):
         from django.core.exceptions import ValidationError
 
         if self.pleasant_habit and self.related_habit is not None:
-            raise ValidationError('У приятных привычек не может быть связанной привычки')
+            raise ValidationError('У приятных привычек не может быть связанной привычки.')
 
 
 class Award(models.Model):
