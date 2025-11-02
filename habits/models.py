@@ -66,8 +66,18 @@ class Habit(models.Model):
     def clean(self):
         from django.core.exceptions import ValidationError
 
-        if self.pleasant_habit and self.related_habit is not None:
-            raise ValidationError('У приятных привычек не может быть связанной привычки.')
+        if self.pleasant_habit:
+
+            if self.related_habit is not None:
+                raise ValidationError('К приятной привычке нельзя привязывать другую привычку.')
+
+            if hasattr(self, 'award_habit') and self.award_habit.exists():
+                raise ValidationError('К приятной привычке нельзя привязывать вознаграждения.')
+        else:
+
+            if hasattr(self, 'award_habit') and self.award_habit.exists() and self.related_habit is not None:
+                raise ValidationError(
+                    'У привычки не может быть одновременно связанного вознаграждения и приятной привычки.')
 
 
 class Award(models.Model):
@@ -92,3 +102,17 @@ class Award(models.Model):
     class Meta:
         verbose_name = 'вознаграждение'
         verbose_name_plural = 'вознаграждения'
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # Импортируем ValidationError, если не сделано выше
+        if self.habit:
+            # Проверяем, что привычка не приятная
+            if self.habit.pleasant_habit:
+                raise ValidationError('У приятной привычки не может быть привязанного вознаграждения')
+
+            # Проверяем связанную привычку, если она есть, и что она не приятная
+            related = getattr(self.habit, 'list_of_pleasant_habits', None)
+            if related and len(related) > 0:
+                raise ValidationError('У привычки с связанной приятной привычкой не может быть вознаграждения')
+
