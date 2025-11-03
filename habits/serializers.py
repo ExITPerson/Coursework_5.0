@@ -79,3 +79,23 @@ class HabitSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('Обычная привычка не должна быть связана с другой привычкой.')
 
         return data
+
+
+class HabitPublicSerializer(serializers.ModelSerializer):
+    award_habit = AwardSerializer(many=True, read_only=True)
+    author = serializers.ReadOnlyField(source='author.id')
+    list_of_pleasant_habits = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Habit
+        fields = [
+            'id', 'title', 'author',
+            'place', 'lead_time', 'action',
+            'pleasant_habit', 'related_habit', 'period',
+            'time_to_complete', 'public', 'award_habit',
+            'list_of_pleasant_habits'
+        ]
+
+    def get_list_of_pleasant_habits(self, obj):
+        pleasant_habits = obj.related_to.filter(pleasant_habit=True, public=True)
+        return HabitSerializer(pleasant_habits, many=True, context=self.context).data
