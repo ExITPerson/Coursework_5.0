@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from habits.models import Habit
+
+
+@admin.register(Habit)
+class CategoryHabit(admin.ModelAdmin):
+    list_display = ('title',)
+    search_fields = ('title',)

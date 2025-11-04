@@ -115,4 +115,3 @@ class Award(models.Model):
             related = getattr(self.habit, 'list_of_pleasant_habits', None)
             if related and len(related) > 0:
                 raise ValidationError('У привычки с связанной приятной привычкой не может быть вознаграждения')
-

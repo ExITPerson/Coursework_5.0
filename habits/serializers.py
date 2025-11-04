@@ -28,6 +28,7 @@ class AwardSerializer(serializers.ModelSerializer):
 
         return data
 
+
 class HabitSerializer(serializers.ModelSerializer):
     award_habit = AwardSerializer(many=True, read_only=True)
     author = serializers.ReadOnlyField(source='author.id')

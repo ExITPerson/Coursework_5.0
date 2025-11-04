@@ -19,6 +19,8 @@ pytelegrambotapi = "^4.29.1"
 redis = "^7.0.1"
 celery = "^5.5.3"
 eventlet = "^0.40.3"
+django-celery-beat = "^2.8.1"
+flake8 = "^7.3.0"
 
 
 [build-system]

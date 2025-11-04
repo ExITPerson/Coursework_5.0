@@ -32,7 +32,13 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True, verbose_name='Email', help_text='Введите электронную почту')
     full_name = models.CharField(max_length=150, verbose_name='Full name', help_text='Введите свое Ф.И.О.')
-    country = models.CharField(max_length=50, null=True, blank=True, verbose_name='Country', help_text='Введите страну')
+    country = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        verbose_name='Country',
+        help_text='Введите страну'
+    )
     telegram_auth_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     telegram_chat_id = models.BigIntegerField(null=True, blank=True, verbose_name='Telegram chat ID')
 

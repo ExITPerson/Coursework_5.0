@@ -1,6 +1,8 @@
 from datetime import timedelta
 from pathlib import Path
 import os
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -29,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'drf_yasg',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -136,14 +139,18 @@ CACHES = {
     }
 }
 
-# CELERY_BEAT_SCHEDULE = {
-#     'deactivate-inactive-users': {
-#         'task': 'users.tasks.deactivate_inactive_users',
-#         'schedule': crontab(hour=0, minute=0),
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    'habit_reminder': {
+        'task': 'habits.tasks.habit_reminder',
+        'schedule': crontab(minute='*/5'),
+    },
+}
 
 AUTH_USER_MODEL = 'users.User'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',

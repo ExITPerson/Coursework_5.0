@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, generics, status
 from rest_framework.permissions import IsAuthenticated
@@ -32,6 +31,7 @@ class AwardViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAuthenticated, AuthorPermission]
+
 
 class HabitCreateAPIView(generics.CreateAPIView):
     serializer_class = HabitSerializer

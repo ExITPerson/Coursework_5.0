@@ -11,6 +11,7 @@ from users.services import save_chat_id_to_user
 
 bot = telebot.TeleBot(os.getenv('TG_TOKEN'))
 
+
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     args = message.text.split()
@@ -26,5 +27,6 @@ def handle_start(message):
         bot.send_message(chat_id, "Здравствуйте! Ваш чат подключен.")
     else:
         bot.send_message(chat_id, "Здравствуйте! Отсутствует токен.")
+
 
 bot.polling()
