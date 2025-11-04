@@ -12,7 +12,7 @@ from habits.serializers import HabitSerializer, AwardSerializer, HabitPublicSeri
 class AwardViewSet(viewsets.ModelViewSet):
     queryset = Award.objects.all()
     serializer_class = AwardSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = HabitAndAwardPaginator
 
     @swagger_auto_schema(request_body=AwardSerializer,)
@@ -31,6 +31,8 @@ class AwardViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated]
         else:
             self.permission_classes = [IsAuthenticated, AuthorPermission]
+
+        return [permission() for permission in self.permission_classes]
 
 
 class HabitCreateAPIView(generics.CreateAPIView):

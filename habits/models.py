@@ -104,14 +104,18 @@ class Award(models.Model):
         verbose_name_plural = 'вознаграждения'
 
     def clean(self):
-        from django.core.exceptions import ValidationError
-        # Импортируем ValidationError, если не сделано выше
-        if self.habit:
-            # Проверяем, что привычка не приятная
-            if self.habit.pleasant_habit:
-                raise ValidationError('У приятной привычки не может быть привязанного вознаграждения')
+        try:
+            from django.core.exceptions import ValidationError
+            # Импортируем ValidationError, если не сделано выше
+            if self.habit:
+                # Проверяем, что привычка не приятная
+                if self.habit.pleasant_habit:
+                    raise ValidationError('У приятной привычки не может быть привязанного вознаграждения')
 
-            # Проверяем связанную привычку, если она есть, и что она не приятная
-            related = getattr(self.habit, 'list_of_pleasant_habits', None)
-            if related and len(related) > 0:
-                raise ValidationError('У привычки с связанной приятной привычкой не может быть вознаграждения')
+                # Проверяем связанную привычку, если она есть, и что она не приятная
+                related = getattr(self.habit, 'list_of_pleasant_habits', None)
+                if related and len(related) > 0:
+                    raise ValidationError('У привычки с связанной приятной привычкой не может быть вознаграждения')
+
+        except Exception as e:
+            print(f'{e}')
