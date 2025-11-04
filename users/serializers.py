@@ -3,19 +3,16 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
+    telegram_auth_link = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['id', 'email', 'full_name', 'country', 'telegram_auth_link', 'telegram_chat_id']
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
+        user = User.objects.create_user(password=password, **validated_data)
+        return user
 
-        instance.is_active = True
-
-        if password is not None:
-            instance.set_password(password)
-
-        instance.save()
-        return instance
+    def get_telegram_auth_link(self, obj):
+        return obj.get_telegram_auth_link_bot()

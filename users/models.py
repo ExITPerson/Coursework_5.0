@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -32,6 +33,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, verbose_name='Email', help_text='Введите электронную почту')
     full_name = models.CharField(max_length=150, verbose_name='Full name', help_text='Введите свое Ф.И.О.')
     country = models.CharField(max_length=50, null=True, blank=True, verbose_name='Country', help_text='Введите страну')
+    telegram_auth_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    telegram_chat_id = models.BigIntegerField(null=True, blank=True, verbose_name='Telegram chat ID')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -44,3 +47,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
+
+    def get_telegram_auth_link_bot(self):
+        bot = 'habits_one_bot'
+        return f'https://t.me/{bot}?start={self.telegram_auth_token}'
