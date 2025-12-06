@@ -1,6 +1,8 @@
 name: CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
 
 jobs:
   test:
@@ -11,11 +13,12 @@ jobs:
       POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16.0
         env:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -27,6 +30,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -38,17 +42,20 @@ jobs:
       - run: python manage.py test
 
   build:
-    needs: test
     runs-on: ubuntu-latest
+    needs: test
     steps:
       - uses: actions/checkout@v4
-      - run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
-      - run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/habits:latest .
-      - run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/habits:latest
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      - name: Build & push
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }}
 
   deploy:
-    needs: build
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: appleboy/ssh-action@v1.0.0
         with:
