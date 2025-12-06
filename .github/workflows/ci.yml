@@ -66,19 +66,23 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # создаём каталог, если его нет
             mkdir -p ~/app
             cd ~/app
-
-            # клонируем репозиторий, если ещё не клонировали
+            
             if [ ! -d .git ]; then
               git clone https://github.com/${{ github.repository }} .
             fi
-
-            # обновляем код
+            
             git fetch
             git checkout ${{ github.sha }}
-
+            
+            echo "${{ secrets.ENV_FILE }}" > .env
+            
+            # Остановить и удалить старые контейнеры и образы
+            docker compose down --rmi all --volumes --remove-orphans
+            
+            # Пересобрать и запустить
+            docker compose up -d --build
             # создаём .env
             echo "${{ secrets.ENV_FILE }}" > .env
 
