@@ -59,14 +59,30 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: appleboy/ssh-action@v1.0.0
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # создаём каталог, если его нет
+            mkdir -p ~/app
             cd ~/app
+
+            # клонируем репозиторий, если ещё не клонировали
+            if [ ! -d .git ]; then
+              git clone https://github.com/${{ github.repository }} .
+            fi
+
+            # обновляем код
+            git fetch
+            git checkout ${{ github.sha }}
+
+            # создаём .env
             echo "${{ secrets.ENV_FILE }}" > .env
+
+            # пересобираем и запускаем
             docker compose down
             docker compose pull
-            docker compose up -d
+            docker compose up -d --build
