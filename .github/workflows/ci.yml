@@ -49,7 +49,9 @@ jobs:
         run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
       - name: Build & push
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }} .
+          docker build \
+            --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            -t ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }} .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }}
 
   deploy:
