@@ -1,158 +1,61 @@
-version: '3.8'
+version: "3.9"
 
 services:
   db:
     image: postgres:16
-    container_name: coursework_db
+    restart: always
     environment:
-      POSTGRES_DB: habits
-      POSTGRES_USER: habits_user
-      POSTGRES_PASSWORD: habits_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U habits_user -d habits"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app_network
+    ports:
+      - "5432:5432"
 
   redis:
     image: redis:7-alpine
-    container_name: coursework_redis
-    command: redis-server --appendonly yes
+    restart: always
     volumes:
       - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app_network
+    ports:
+      - "6379:6379"
 
   web:
     build: .
-    container_name: coursework_web
-    command: >
-      sh -c "
-        python manage.py migrate --noinput &&
-        python manage.py collectstatic --noinput &&
-        gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
-      "
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - DEBUG=False
-      - ALLOWED_HOSTS=localhost,127.0.0.1,147.45.246.38
-      - NAME=habits
-      - USER=habits_user
-      - PASSWORD=${DB_PASSWORD}
-      - HOST=db
-      - PORT=5432
-      - TG_TOKEN=${TG_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
-      - CACHE_LOCATION=redis://redis:6379/1
-    volumes:
-      - ./media:/app/media
-      - ./static:/app/static
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+    restart: always
     ports:
       - "8000:8000"
-    networks:
-      - app_network
-
-  celery_worker:
-    build: .
-    container_name: coursework_celery_worker
-    command: celery -A config worker --loglevel=info
-    environment:
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-met2+h&m-^3)wbllmjn*mjz(d=+ip9e-x70s86w4ev1@um@axr}
-      - DEBUG=False
-      - NAME=habits
-      - USER=habits_user
-      - PASSWORD=habits_password
-      - HOST=db
-      - PORT=5432
-      - TG_TOKEN=${TG_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+    env_file: .env
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     depends_on:
       - db
       - redis
-      - web
-    networks:
-      - app_network
 
-  celery_beat:
+  celery:
     build: .
-    container_name: coursework_celery_beat
-    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    environment:
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-met2+h&m-^3)wbllmjn*mjz(d=+ip9e-x70s86w4ev1@um@axr}
-      - DEBUG=False
-      - NAME=habits
-      - USER=habits_user
-      - PASSWORD=habits_password
-      - HOST=db
-      - PORT=5432
-      - TG_TOKEN=${TG_TOKEN}
-      - CELERY_BROKER_URL=redis://redis:6379
-      - CELERY_RESULT_BACKEND=redis://redis:6379
+    command: celery -A config worker --loglevel=info
+    env_file: .env
+    depends_on:
+      - db
+      - redis
     volumes:
       - .:/app
-    depends_on:
-      - db
-      - redis
-      - web
-    networks:
-      - app_network
 
-  telegram_bot:
+  celery-beat:
     build: .
-    container_name: coursework_telegram_bot
-    command: python bot.py
-    environment:
-      - SECRET_KEY=${SECRET_KEY:-django-insecure-met2+h&m-^3)wbllmjn*mjz(d=+ip9e-x70s86w4ev1@um@axr}
-      - DEBUG=False
-      - NAME=habits
-      - USER=habits_user
-      - PASSWORD=habits_password
-      - HOST=db
-      - PORT=5432
-      - TG_TOKEN=${TG_TOKEN}
+    command: celery -A config beat --loglevel=info
+    env_file: .env
     depends_on:
       - db
       - redis
-      - web
-    networks:
-      - app_network
-
-  nginx:
-    image: nginx:alpine
-    container_name: coursework_nginx
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./static:/app/static
-      - ./media:/app/media
-    depends_on:
-      - web
-    networks:
-      - app_network
-
-networks:
-  app_network:
-    driver: bridge
+      - .:/app
 
 volumes:
   postgres_data:
   redis_data:
+  static_volume:
+  media_volume:
