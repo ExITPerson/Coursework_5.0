@@ -50,9 +50,10 @@ jobs:
       - name: Build & push
         run: |
           docker build \
-            --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
-            -t ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/coursework5:${{ github.sha }}
+            --build-arg SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            -t "${{ secrets.DOCKER_HUB_USERNAME }}"/coursework5:"${{ github.sha }}" \
+            .
+          docker push "${{ secrets.DOCKER_HUB_USERNAME }}"/coursework5:"${{ github.sha }}"
 
   deploy:
     runs-on: ubuntu-latest
