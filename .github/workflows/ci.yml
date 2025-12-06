@@ -10,9 +10,9 @@ jobs:
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       DEBUG: 1
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: habits
+      POSTGRES_USER: habits_user
+      POSTGRES_PASSWORD: habits_password
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
 
@@ -20,13 +20,13 @@ jobs:
       postgres:
         image: postgres:16.0
         env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: habits
+          POSTGRES_USER: habits_user
+          POSTGRES_PASSWORD: habits_password
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U ${{ secrets.POSTGRES_USER }}"
+          --health-cmd="pg_isready -U habits_user"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
