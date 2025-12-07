@@ -2,7 +2,6 @@ name: CI/CD
 
 on: [push, pull_request]
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -68,25 +67,17 @@ jobs:
           script: |
             mkdir -p ~/app
             cd ~/app
-            
+
             if [ ! -d .git ]; then
               git clone https://github.com/${{ github.repository }} .
             fi
-            
+
             git fetch
             git checkout ${{ github.sha }}
-            
-            echo "${{ secrets.ENV_FILE }}" > .env
-            
-            # Остановить и удалить старые контейнеры и образы
-            docker compose down --rmi all --volumes --remove-orphans
-            
-            # Пересобрать и запустить
-            docker compose up -d --build
-            # создаём .env
+
             echo "${{ secrets.ENV_FILE }}" > .env
 
-            # пересобираем и запускаем
-            docker compose down
-            docker compose pull
-            docker compose up -d --build
+            docker compose down --volumes --remove-orphans
+            docker network prune -f || true
+            docker compose build --no-cache
+            docker compose up -d
