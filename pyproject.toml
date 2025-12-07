@@ -7,6 +7,20 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+django = "^5.2.7"
+dotenv = "^0.9.9"
+djangorestframework = "^3.16.1"
+psycopg2 = "^2.9.11"
+rest-framework-simplejwt = "^0.0.2"
+djangorestframework-simplejwt = "^5.5.1"
+django-cors-headers = "^4.9.0"
+drf-yasg = "^1.21.11"
+pytelegrambotapi = "^4.29.1"
+redis = "^7.0.1"
+celery = "^5.5.3"
+eventlet = "^0.40.3"
+django-celery-beat = "^2.8.1"
+flake8 = "^7.3.0"
 
 
 [build-system]
