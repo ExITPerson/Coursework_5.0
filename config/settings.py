@@ -45,6 +45,7 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
 
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
